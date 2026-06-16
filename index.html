@@ -253,6 +253,7 @@
       currencyFormatter = new Intl.NumberFormat(locale, {
         style: "currency",
         currency: selectedCurrency,
+        currencyDisplay: "narrowSymbol",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
