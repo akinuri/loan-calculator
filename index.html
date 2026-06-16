@@ -47,7 +47,13 @@
           <span id="principalLabel" class="mb-1 block text-sm font-medium">Kredi Tutarı</span>
           <div class="relative isolate flex">
             <input id="principal" type="number" min="1" step="1000" value="100000" class="w-full rounded-l-xl rounded-r-none border border-slate-200 px-4 py-3 text-slate-900 outline-none ring-brand-100 transition focus:relative focus:z-20 focus:border-brand-600 focus:ring-2" required />
-            <span class="relative z-0 inline-flex items-center rounded-r-xl border-y border-r border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-600">₺</span>
+            <select id="currency" class="relative z-0 rounded-r-xl border-y border-r border-slate-200 bg-slate-50 px-2 text-sm font-semibold text-slate-700 outline-none transition focus:relative focus:z-20 focus:border-brand-600 focus:ring-2" required>
+              <option value="TRY" selected>₺</option>
+              <option value="USD">$</option>
+              <option value="EUR">€</option>
+              <option value="GBP">£</option>
+              <option value="JPY">¥</option>
+            </select>
           </div>
         </label>
 
@@ -153,6 +159,7 @@
     const principalInput = document.getElementById("principal");
     const rateInput = document.getElementById("rate");
     const termInput = document.getElementById("term");
+    const currencyInput = document.getElementById("currency");
     const inflationInput = document.getElementById("inflation");
     const startMonthInput = document.getElementById("startMonth");
     const languageInput = document.getElementById("language");
@@ -179,8 +186,8 @@
         monthlyPaymentLabel: "Aylık Taksit",
         totalPaymentLabel: "Toplam Geri Ödeme",
         totalInterestLabel: "Toplam Faiz",
-        realTotalPaymentLabel: "Reel Toplam (Bugünkü TL)",
-        realInterestLabel: "Reel Faiz (Bugünkü TL)",
+        realTotalPaymentLabel: "Reel Toplam (Bugünkü Değer)",
+        realInterestLabel: "Reel Faiz (Bugünkü Değer)",
         scheduleTitle: "Ödeme Planı",
         thMonth: "Ay",
         thPayment: "Taksit",
@@ -210,8 +217,8 @@
         monthlyPaymentLabel: "Monthly Payment",
         totalPaymentLabel: "Total Payment",
         totalInterestLabel: "Total Interest",
-        realTotalPaymentLabel: "Real Total (Today's TRY)",
-        realInterestLabel: "Real Interest (Today's TRY)",
+        realTotalPaymentLabel: "Real Total (Today's Value)",
+        realInterestLabel: "Real Interest (Today's Value)",
         scheduleTitle: "Payment Schedule",
         thMonth: "Month",
         thPayment: "Payment",
@@ -230,6 +237,7 @@
       }
     };
     let currentLang = "tr";
+    let selectedCurrency = "TRY";
     let currencyFormatter = null;
 
     function getText(key) {
@@ -244,7 +252,7 @@
       const locale = currentLang === "tr" ? "tr-TR" : "en-US";
       currencyFormatter = new Intl.NumberFormat(locale, {
         style: "currency",
-        currency: "TRY",
+        currency: selectedCurrency,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
@@ -300,6 +308,12 @@
       });
 
       renderStartMonthOptions();
+      setCurrencyFormatter();
+      handleCalculate();
+    }
+
+    function applyCurrency(currencyCode) {
+      selectedCurrency = currencyCode;
       setCurrencyFormatter();
       handleCalculate();
     }
@@ -490,9 +504,14 @@
       applyLanguage(event.target.value);
     });
 
+    currencyInput.addEventListener("change", (event) => {
+      applyCurrency(event.target.value);
+    });
+
     const initialLanguage = detectInitialLanguage();
     languageInput.value = initialLanguage;
     applyLanguage(initialLanguage);
+    applyCurrency(currencyInput.value);
   </script>
 </body>
 </html>
