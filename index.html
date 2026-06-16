@@ -50,9 +50,6 @@
           <input id="term" type="number" min="1" step="1" value="24" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none ring-brand-100 transition focus:border-brand-600 focus:ring" required />
         </label>
 
-        <div class="md:col-span-3">
-          <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">Hesapla</button>
-        </div>
       </form>
 
       <p id="errorText" class="mt-3 hidden rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"></p>
@@ -188,8 +185,7 @@
       });
     }
 
-    function handleCalculate(event) {
-      event.preventDefault();
+    function handleCalculate() {
       clearError();
 
       const principal = Number(principalInput.value);
@@ -221,8 +217,27 @@
       renderSchedule(schedule);
     }
 
-    form.addEventListener("submit", handleCalculate);
-    form.dispatchEvent(new Event("submit"));
+    function debounce(fn, delay) {
+      let timer;
+
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    const debouncedCalculate = debounce(handleCalculate, 500);
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+    });
+
+    [principalInput, rateInput, termInput].forEach((input) => {
+      input.addEventListener("input", debouncedCalculate);
+      input.addEventListener("change", debouncedCalculate);
+    });
+
+    handleCalculate();
   </script>
 </body>
 </html>
