@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kredi Hesaplama Aracı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#eef8ff",
+              100: "#d9efff",
+              600: "#0b69ff",
+              700: "#0555d8"
+            }
+          },
+          boxShadow: {
+            soft: "0 20px 45px -20px rgba(11,105,255,.35)"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50 text-slate-800 pb-[calc(5vh_+_4rem)]">
+  <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
+    <section class="rounded-3xl border border-sky-100 bg-white/90 p-6 shadow-soft backdrop-blur md:p-8">
+      <div class="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Kredi Hesaplama Aracı</h1>
+        </div>
+      </div>
+
+      <form id="loanForm" class="grid gap-4 md:grid-cols-3" novalidate>
+        <label class="block">
+          <span class="mb-1 block text-sm font-medium">Kredi Tutarı (TL)</span>
+          <input id="principal" type="number" min="1" step="1000" value="250000" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none ring-brand-100 transition focus:border-brand-600 focus:ring" required />
+        </label>
+
+        <label class="block">
+          <span class="mb-1 block text-sm font-medium">Aylık Faiz Oranı (%)</span>
+          <input id="rate" type="number" min="0" step="0.01" value="3.49" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none ring-brand-100 transition focus:border-brand-600 focus:ring" required />
+        </label>
+
+        <label class="block">
+          <span class="mb-1 block text-sm font-medium">Vade (Ay)</span>
+          <input id="term" type="number" min="1" step="1" value="24" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none ring-brand-100 transition focus:border-brand-600 focus:ring" required />
+        </label>
+
+        <div class="md:col-span-3">
+          <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">Hesapla</button>
+        </div>
+      </form>
+
+      <p id="errorText" class="mt-3 hidden rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"></p>
+
+      <section class="mt-8 grid gap-4 sm:grid-cols-3">
+        <article class="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+          <p class="text-xs font-medium uppercase tracking-wide text-blue-700">Aylık Taksit</p>
+          <p id="monthlyPayment" class="mt-2 text-2xl font-bold text-blue-800">-</p>
+        </article>
+
+        <article class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <p class="text-xs font-medium uppercase tracking-wide text-emerald-700">Toplam Geri Ödeme</p>
+          <p id="totalPayment" class="mt-2 text-2xl font-bold text-emerald-800">-</p>
+        </article>
+
+        <article class="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+          <p class="text-xs font-medium uppercase tracking-wide text-orange-700">Toplam Faiz</p>
+          <p id="totalInterest" class="mt-2 text-2xl font-bold text-orange-800">-</p>
+        </article>
+      </section>
+
+      <section class="mt-8">
+        <h2 class="text-lg font-semibold">İlk 12 Ay Ödeme Planı</h2>
+        <div class="mt-3 overflow-hidden rounded-2xl border border-slate-200">
+          <div class="max-h-[380px] overflow-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+              <thead class="text-left text-slate-600">
+                <tr>
+                  <th class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Ay</th>
+                  <th class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Taksit</th>
+                  <th class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Faiz</th>
+                  <th class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Anapara</th>
+                  <th class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Kalan Borç</th>
+                </tr>
+              </thead>
+              <tbody id="scheduleBody" class="divide-y divide-slate-100 bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("loanForm");
+    const principalInput = document.getElementById("principal");
+    const rateInput = document.getElementById("rate");
+    const termInput = document.getElementById("term");
+
+    const monthlyPaymentEl = document.getElementById("monthlyPayment");
+    const totalPaymentEl = document.getElementById("totalPayment");
+    const totalInterestEl = document.getElementById("totalInterest");
+    const scheduleBody = document.getElementById("scheduleBody");
+    const errorText = document.getElementById("errorText");
+
+    const currencyFormatter = new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: "TRY",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    function formatCurrency(value) {
+      return currencyFormatter.format(value);
+    }
+
+    function showError(message) {
+      errorText.textContent = message;
+      errorText.classList.remove("hidden");
+    }
+
+    function clearError() {
+      errorText.textContent = "";
+      errorText.classList.add("hidden");
+    }
+
+    function calculateLoan(principal, monthlyRatePercent, termMonths) {
+      const monthlyRate = monthlyRatePercent / 100;
+
+      if (monthlyRate === 0) {
+        const monthlyPayment = principal / termMonths;
+        return {
+          monthlyPayment,
+          totalPayment: monthlyPayment * termMonths,
+          totalInterest: 0
+        };
+      }
+
+      const factor = Math.pow(1 + monthlyRate, termMonths);
+      const monthlyPayment = (principal * monthlyRate * factor) / (factor - 1);
+      const totalPayment = monthlyPayment * termMonths;
+      const totalInterest = totalPayment - principal;
+
+      return { monthlyPayment, totalPayment, totalInterest };
+    }
+
+    function createSchedule(principal, monthlyRatePercent, termMonths, monthlyPayment) {
+      let remaining = principal;
+      const monthlyRate = monthlyRatePercent / 100;
+      const rows = [];
+      const maxRows = Math.min(12, termMonths);
+
+      for (let month = 1; month <= maxRows; month += 1) {
+        const interest = remaining * monthlyRate;
+        const principalPart = monthlyPayment - interest;
+        remaining = Math.max(0, remaining - principalPart);
+
+        rows.push({
+          month,
+          payment: monthlyPayment,
+          interest,
+          principal: principalPart,
+          remaining
+        });
+      }
+
+      return rows;
+    }
+
+    function renderSchedule(rows) {
+      scheduleBody.innerHTML = "";
+
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="px-4 py-3">${row.month}</td>
+          <td class="px-4 py-3">${formatCurrency(row.payment)}</td>
+          <td class="px-4 py-3">${formatCurrency(row.interest)}</td>
+          <td class="px-4 py-3">${formatCurrency(row.principal)}</td>
+          <td class="px-4 py-3">${formatCurrency(row.remaining)}</td>
+        `;
+        scheduleBody.appendChild(tr);
+      });
+    }
+
+    function handleCalculate(event) {
+      event.preventDefault();
+      clearError();
+
+      const principal = Number(principalInput.value);
+      const monthlyRatePercent = Number(rateInput.value);
+      const termMonths = Number(termInput.value);
+
+      if (!Number.isFinite(principal) || principal <= 0) {
+        showError("Lütfen geçerli bir kredi tutarı girin.");
+        return;
+      }
+
+      if (!Number.isFinite(monthlyRatePercent) || monthlyRatePercent < 0) {
+        showError("Lütfen geçerli bir faiz oranı girin.");
+        return;
+      }
+
+      if (!Number.isInteger(termMonths) || termMonths <= 0) {
+        showError("Lütfen geçerli bir vade (ay) girin.");
+        return;
+      }
+
+      const result = calculateLoan(principal, monthlyRatePercent, termMonths);
+
+      monthlyPaymentEl.textContent = formatCurrency(result.monthlyPayment);
+      totalPaymentEl.textContent = formatCurrency(result.totalPayment);
+      totalInterestEl.textContent = formatCurrency(result.totalInterest);
+
+      const schedule = createSchedule(principal, monthlyRatePercent, termMonths, result.monthlyPayment);
+      renderSchedule(schedule);
+    }
+
+    form.addEventListener("submit", handleCalculate);
+    form.dispatchEvent(new Event("submit"));
+  </script>
+</body>
+</html>
