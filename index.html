@@ -81,7 +81,7 @@
       </section>
 
       <section class="mt-8">
-        <h2 class="text-lg font-semibold">İlk 12 Ay Ödeme Planı</h2>
+        <h2 class="text-lg font-semibold">Ödeme Planı</h2>
         <div class="mt-3 overflow-hidden rounded-2xl border border-slate-200">
           <div class="max-h-[380px] overflow-auto">
             <table class="min-w-full divide-y divide-slate-200 text-sm">
@@ -159,7 +159,7 @@
       let remaining = principal;
       const monthlyRate = monthlyRatePercent / 100;
       const rows = [];
-      const maxRows = Math.min(12, termMonths);
+      const maxRows = termMonths;
 
       for (let month = 1; month <= maxRows; month += 1) {
         const interest = remaining * monthlyRate;
