@@ -117,7 +117,10 @@
 
         <article class="rounded-2xl border border-orange-200 bg-orange-50 p-4">
           <p id="totalInterestLabel" class="text-xs font-medium uppercase tracking-wide text-orange-700">Toplam Faiz</p>
-          <p id="totalInterest" class="mt-2 text-2xl font-bold text-orange-800">-</p>
+          <p class="mt-2 flex items-baseline gap-2">
+            <span id="totalInterest" class="text-2xl font-bold text-orange-800">-</span>
+            <span id="totalInterestPct" class="text-sm font-semibold text-orange-700">(-%)</span>
+          </p>
         </article>
 
         <article class="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
@@ -127,7 +130,10 @@
 
         <article class="rounded-2xl border border-rose-200 bg-rose-50 p-4">
           <p id="realInterestLabel" class="text-xs font-medium uppercase tracking-wide text-rose-700">Reel Faiz (Bugünkü TL)</p>
-          <p id="realInterest" class="mt-2 text-2xl font-bold text-rose-800">-</p>
+          <p class="mt-2 flex items-baseline gap-2">
+            <span id="realInterest" class="text-2xl font-bold text-rose-800">-</span>
+            <span id="realInterestPct" class="text-sm font-semibold text-rose-700">(-%)</span>
+          </p>
         </article>
       </section>
 
@@ -167,8 +173,10 @@
     const monthlyPaymentEl = document.getElementById("monthlyPayment");
     const totalPaymentEl = document.getElementById("totalPayment");
     const totalInterestEl = document.getElementById("totalInterest");
+    const totalInterestPctEl = document.getElementById("totalInterestPct");
     const realTotalPaymentEl = document.getElementById("realTotalPayment");
     const realInterestEl = document.getElementById("realInterest");
+    const realInterestPctEl = document.getElementById("realInterestPct");
     const scheduleBody = document.getElementById("scheduleBody");
     const errorText = document.getElementById("errorText");
 
@@ -476,6 +484,10 @@
       totalInterestEl.textContent = formatCurrency(result.totalInterest);
       realTotalPaymentEl.textContent = formatCurrency(realTotalPayment);
       realInterestEl.textContent = formatCurrency(realInterest);
+      const totalInterestPercent = principal > 0 ? Math.round((result.totalInterest / principal) * 100) : 0;
+      const realInterestPercent = principal > 0 ? Math.round((realInterest / principal) * 100) : 0;
+      totalInterestPctEl.textContent = `(${totalInterestPercent}%)`;
+      realInterestPctEl.textContent = `(${realInterestPercent}%)`;
 
       const schedule = createSchedule(principal, monthlyRatePercent, annualInflationPercent, startMonth, termMonths, result.monthlyPayment);
       renderSchedule(schedule);
