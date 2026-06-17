@@ -144,12 +144,12 @@
             <table class="min-w-full divide-y divide-slate-200 text-sm">
               <thead class="text-left text-slate-600">
                 <tr>
-                  <th id="thMonth" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Ay</th>
-                  <th id="thPayment" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Taksit</th>
-                  <th id="thRealPayment" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Reel Taksit</th>
-                  <th id="thInterest" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Faiz</th>
-                  <th id="thPrincipal" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Anapara</th>
-                  <th id="thRemaining" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold">Kalan Borç</th>
+                  <th id="thMonth" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold whitespace-nowrap">Ay</th>
+                  <th id="thPayment" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold whitespace-nowrap">Taksit</th>
+                  <th id="thRealPayment" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold whitespace-nowrap">Reel Taksit</th>
+                  <th id="thInterest" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold whitespace-nowrap">Faiz</th>
+                  <th id="thPrincipal" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold whitespace-nowrap">Anapara</th>
+                  <th id="thRemaining" class="sticky top-0 z-10 bg-slate-50 px-4 py-3 font-semibold whitespace-nowrap">Kalan Borç</th>
                 </tr>
               </thead>
               <tbody id="scheduleBody" class="divide-y divide-slate-100 bg-white"></tbody>
@@ -415,7 +415,7 @@
         const tr = document.createElement("tr");
         tr.className = "transition-colors hover:bg-sky-50/70";
         tr.innerHTML = `
-          <td class="px-4 py-3"><span class="inline-block w-4 mr-1 text-right tabular-nums">${row.month}</span> <span class="text-xs text-slate-400/75">${row.monthName}</span></td>
+          <td class="px-4 py-3 whitespace-nowrap"><span class="inline-block w-4 mr-1 text-right tabular-nums">${row.month}</span> <span class="text-xs text-slate-400/75">${row.monthName}</span></td>
           <td class="px-4 py-3">${formatCurrency(row.payment)}</td>
           <td class="px-4 py-3">${formatCurrency(row.realPayment)}</td>
           <td class="px-4 py-3">${formatCurrency(row.interest)}</td>
