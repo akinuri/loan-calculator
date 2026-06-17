@@ -414,7 +414,7 @@
       rows.forEach((row) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="px-4 py-3">${row.month} <span class="text-xs text-slate-400">(${row.monthName})</span></td>
+          <td class="px-4 py-3"><span class="inline-block w-4 mr-1 text-right tabular-nums">${row.month}</span> <span class="text-xs text-slate-400">(${row.monthName})</span></td>
           <td class="px-4 py-3">${formatCurrency(row.payment)}</td>
           <td class="px-4 py-3">${formatCurrency(row.realPayment)}</td>
           <td class="px-4 py-3">${formatCurrency(row.interest)}</td>
