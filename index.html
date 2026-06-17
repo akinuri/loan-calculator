@@ -413,6 +413,7 @@
 
       rows.forEach((row) => {
         const tr = document.createElement("tr");
+        tr.className = "transition-colors hover:bg-sky-50/70";
         tr.innerHTML = `
           <td class="px-4 py-3"><span class="inline-block w-4 mr-1 text-right tabular-nums">${row.month}</span> <span class="text-xs text-slate-400/75">${row.monthName}</span></td>
           <td class="px-4 py-3">${formatCurrency(row.payment)}</td>
